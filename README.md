@@ -1,409 +1,371 @@
-# Subject Matter Expert RAG System
+# 🎓 Subject Matter Expert RAG System with Knowledge Graphs
 
-Enterprise-grade RAG system with dual vector store implementations: **Elasticsearch** (recommended) and **ChromaDB** for intelligent document search and question answering.
+A comprehensive **Retrieval-Augmented Generation (RAG)** system combining traditional Elasticsearch-based document retrieval with advanced **GPU-accelerated Knowledge Graphs** for enhanced subject matter expertise.
 
-## 🏆 Why This System?
+## 🎯 System Overview
 
-This project evolved from a ChromaDB-based RAG system to a more robust **Elasticsearch implementation**. Both implementations are available for comparison and different use cases.
+This system provides two complementary approaches:
 
-### 🚀 Elasticsearch Implementation (Recommended)
-- **Better Performance**: Hybrid search (vector + text) for superior retrieval
-- **Enterprise Ready**: Production-grade with advanced filtering and faceting
-- **Scalability**: Handles large document collections efficiently
-- **Real-time**: Updates and queries without rebuilding entire index
-- **Advanced Features**: Reranking, hierarchical retrieval, and metadata filtering
+1. **📚 SME (Subject Matter Expert) System** - Traditional RAG with Elasticsearch
+2. **🧠 Knowledge Graph System** - Advanced GPU-accelerated knowledge graphs with dynamic concept extraction
 
-### 📚 ChromaDB Implementation (Legacy/Comparison)
-- **Simplicity**: Easier setup for small projects
-- **Local First**: No external dependencies
-- **Good for**: Proof of concepts and smaller document sets
+## 🏗️ Architecture
 
-## 🏗️ Architecture Overview
-
-### Elasticsearch Implementation (Production)
 ```
-Documents → LlamaIndex Processing → Elasticsearch (Docker) → Hybrid Retrieval → Qwen3 (Ollama)
-```
-
-### ChromaDB Implementation (Legacy)
-```
-Documents → LlamaIndex Processing → ChromaDB (Local) → Vector Search → Qwen3 (Ollama)
+📁 Subject Matter Expert RAG System
+├── 🔍 SME System (Elasticsearch-based RAG)
+│   ├── SME_1_build_elasticsearch_database.py
+│   ├── SME_2_query_elasticsearch_system.py
+│   └── SME_3_inspect_elasticsearch_database.py
+│
+├── 🧠 Knowledge Graph System (GPU-accelerated)
+│   ├── KG_ENHANCED_1_build_chapter_database_gpu.py
+│   ├── KG_ENHANCED_2_build_knowledge_graph_gpu.py
+│   ├── KG_ENHANCED_3_query_knowledge_graph_gpu.py
+│   ├── KG_ENHANCED_4_visualize_knowledge_graph_gpu.py
+│   └── KG_ENHANCED_MASTER_runner_gpu.py (Master Runner)
+│
+└── 🛠️ Setup & Configuration
+    ├── Enhanced_Knowledge_Graph_Setup_and_Testing.ipynb
+    ├── KG_SETUP_ENHANCED_SYSTEM.py
+    ├── setup_knowledge_graph.ps1 (Windows)
+    └── setup_knowledge_graph.sh (Linux/macOS)
 ```
 
 ## 🚀 Quick Start
 
-### Prerequisites
-- Python 3.8+
-- Docker and Docker Compose
-- Git
-- CUDA-capable GPU (recommended)
+### 1. Prerequisites
 
-### 1. Clone and Setup
+**Required Services:**
+- **Elasticsearch** (port 9200)
+- **Neo4j** (port 7687, 7474)
+- **Ollama** with `qwen3:4b` model (port 11434)
+
+**System Requirements:**
+- Python 3.11+
+- NVIDIA GPU with CUDA 12.1+ (optional, CPU fallback available)
+- Docker Desktop
+- 8GB+ RAM (16GB+ recommended for GPU)
+
+### 2. Installation
+
 ```bash
-git clone <your-repo-url>
+# 1. Clone repository
+git clone <repository-url>
 cd subject-matter-expert-rag
+
+# 2. Create virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+# Windows:
+venv\Scripts\activate
+# Linux/Mac:
+source venv/bin/activate
+
+# 3. Install dependencies
+# For basic SME system:
 pip install -r requirements.txt
-```
 
-### 2. Start Elasticsearch
-```bash
+# For enhanced system with Knowledge Graphs:
+pip install -r enhanced_requirements.txt
+
+# 4. Setup services
+# Windows PowerShell:
+.\setup_knowledge_graph.ps1
+# Linux/macOS:
+./setup_knowledge_graph.sh
+
+# Or manually:
 docker-compose -f docker-compose-elasticsearch.yml up -d
-```
-
-Wait ~30 seconds for Elasticsearch to fully start, then verify:
-```bash
-curl http://localhost:9200
-```
-
-### 3. Start Ollama (Local LLM)
-```bash
-# Install Ollama (if not already installed)
-curl -fsSL https://ollama.ai/install.sh | sh
-
-# Pull the model
-ollama pull qwen3:4b
-
-# Start Ollama server (if not auto-started)
+docker-compose -f docker-compose-neo4j.yml up -d
 ollama serve
+ollama pull qwen3:4b
 ```
 
-### 4. Prepare Your Documents
+### 3. Setup Data
+
 ```bash
-# Create data directory and add your documents
-mkdir -p data_large
-# Copy your PDFs, DOCX, TXT files to data_large/
+# Add your documents to data_large/ directory
+mkdir data_large
+# Copy your PDF, DOCX, TXT files here
 ```
 
-### 5. Build the Index
+## 📊 Usage Guide
 
-#### For Elasticsearch (Recommended):
+### 🔍 SME System (Traditional RAG)
+
+**Best for:** Document retrieval, Q&A, basic semantic search
+
 ```bash
-python 1_build_database_elasticsearch.py
+# 1. Build Elasticsearch database
+python SME_1_build_elasticsearch_database.py
+
+# 2. Query the system
+python SME_2_query_elasticsearch_system.py
+
+# 3. Inspect database
+python SME_3_inspect_elasticsearch_database.py
 ```
 
-#### For ChromaDB (Alternative):
+**Features:**
+- Hierarchical document parsing
+- Elasticsearch vector storage
+- AutoMerging retrieval
+- Re-ranking with BGE models
+
+### 🧠 Knowledge Graph System (Advanced)
+
+**Best for:** Concept relationships, learning paths, intelligent tutoring
+
+#### Option A: Master Runner (Recommended)
 ```bash
-python 1_build_database_advanced.py
+# Run everything with GPU optimization
+python KG_ENHANCED_MASTER_runner_gpu.py
+
+# Quick test mode
+python KG_ENHANCED_MASTER_runner_gpu.py --quick
+
+# Step-by-step interactive mode
+python KG_ENHANCED_MASTER_runner_gpu.py --interactive
 ```
 
-### 6. Start Querying
-
-#### For Elasticsearch:
+#### Option B: Step-by-Step Execution
 ```bash
-python 2_query_system_elasticsearch_hierarchy.py
+# 1. Build chapter database with dynamic concepts
+python KG_ENHANCED_1_build_chapter_database_gpu.py
+
+# 2. Create knowledge graph with clustering
+python KG_ENHANCED_2_build_knowledge_graph_gpu.py
+
+# 3. Interactive query system
+python KG_ENHANCED_3_query_knowledge_graph_gpu.py
+
+# 4. Generate 3D visualizations
+python KG_ENHANCED_4_visualize_knowledge_graph_gpu.py
 ```
 
-#### For ChromaDB:
+#### Option C: Quick Start Guide
 ```bash
-python 2_query_system_advanced.py
+# Follow the detailed quickstart guide
+# See: KNOWLEDGE_GRAPH_QUICKSTART.md
 ```
 
-## 📁 Project Structure
+**Features:**
+- Dynamic concept extraction (10-30 concepts per chapter)
+- GPU-accelerated processing throughout
+- Neo4j knowledge graph with concept clustering
+- 3D interactive visualizations
+- Learning path recommendations
 
-## 📁 Project Structure
+## 🔥 Knowledge Graph Features
 
-```
-subject-matter-expert-rag/
-├── 1_build_database_elasticsearch.py       # Elasticsearch index builder (recommended)
-├── 1_build_database_advanced.py           # ChromaDB index builder (legacy)
-├── 2_query_system_elasticsearch_hierarchy.py # Elasticsearch query interface
-├── 2_query_system_advanced.py             # ChromaDB query interface
-├── 3_inspect_elasticsearch.py             # Elasticsearch debug/inspection
-├── 3_inspect_hierarchy.py                 # ChromaDB debug/inspection
-├── batch_test_rag.py                      # Batch testing system
-├── docker-compose-elasticsearch.yml       # Elasticsearch container
-├── requirements.txt                       # Python dependencies
-├── data_large/                            # Your documents (create this)
-├── elasticsearch_storage_v2/              # Generated: Elasticsearch storage
-├── chroma_db_advanced/                    # Generated: ChromaDB storage
-├── venv/                                  # Generated: Python venv
-└── README.md                             # This file
-```
+### 🎯 Dynamic Concept Extraction
+- **5 Intelligent Methods:** Explicit objectives, key terms, technical concepts, section concepts, question concepts
+- **Adaptive Count:** 10-30 concepts per chapter (not hardcoded)
+- **GPU Acceleration:** CUDA-optimized processing
 
-## 🔧 Configuration
+### 🕸️ Advanced Knowledge Graph
+- **Neo4j Storage:** Complex relationships and prerequisites
+- **Concept Clustering:** K-means with GPU acceleration
+- **Relation Extraction:** Hybrid NLTK + Elasticsearch approach
+- **Prerequisite Detection:** Automatic dependency mapping
 
-## ⚖️ Implementation Comparison
+### 📊 3D Visualizations
+- **Interactive Dashboards:** Plotly-based exploration
+- **Concept Clusters:** 3D t-SNE with GPU acceleration
+- **Network Analysis:** NetworkX integration
+- **Performance Analytics:** Real-time metrics
 
-| Feature | Elasticsearch | ChromaDB |
-|---------|---------------|----------|
-| **Setup Complexity** | Medium (Docker required) | Easy (Local only) |
-| **Performance** | Excellent (Hybrid search) | Good (Vector only) |
-| **Scalability** | Enterprise-grade | Small to medium |
-| **Real-time Updates** | ✅ Yes | ❌ Requires rebuild |
-| **Advanced Search** | ✅ Filters, faceting, ranking | ❌ Basic vector search |
-| **Production Ready** | ✅ Yes | ⚠️ Limited |
-| **Memory Usage** | Moderate | Low |
-| **Best For** | Production systems | Prototypes, small datasets |
+### 🔍 Intelligent Query System
+- **Semantic Search:** GPU-accelerated embeddings
+- **Context Awareness:** Multi-hop reasoning
+- **Concept Expansion:** Related concept suggestions
+- **Source Attribution:** Detailed provenance tracking
 
-### When to Use Elasticsearch:
-- Large document collections (>1000 documents)
-- Production deployments
-- Need for advanced search features
-- Real-time document updates
-- Enterprise environments
+## 🎮 GPU Optimization
 
-### When to Use ChromaDB:
-- Quick prototypes and demos
-- Small document collections (<500 documents)
-- Local development without Docker
-- Educational purposes
-- Simple vector search requirements
-
-### Environment Variables (Optional)
-Create a `.env` file to customize settings:
-```bash
-# Elasticsearch Configuration
-ELASTICSEARCH_HOST=localhost
-ELASTICSEARCH_PORT=9200
-
-# Model Configuration
-EMBEDDING_MODEL=sentence-transformers/all-mpnet-base-v2
-LLM_MODEL=qwen3:4b
-
-# Chunk Configuration
-CHUNK_SIZE=512
-CHUNK_OVERLAP=50
-```
-
-### Hardware Requirements
-- **Minimum:** 8GB RAM, 4 CPU cores
-- **Recommended:** 16GB RAM, 8 CPU cores, NVIDIA GPU
-- **Storage:** 10GB+ free space (depends on document size)
-
-## 📊 System Components
-
-### 1. Document Processing
-- **Framework:** LlamaIndex
-- **Parser:** HierarchicalNodeParser (2048→512→128 tokens)
-- **Formats:** PDF, DOCX, TXT, MD, JSON
-- **Tokenizer:** tiktoken (GPT-compatible)
-
-### 2. Vector Storage
-- **Engine:** Elasticsearch 8.11.0 (Docker)
-- **Index:** Hybrid search (vector + text)
-- **Embeddings:** sentence-transformers/all-mpnet-base-v2
-- **Dimensions:** 768
-
-### 3. Retrieval System
-- **Base Retriever:** Elasticsearch hybrid search
-- **Enhancement:** AutoMergingRetriever (hierarchy-aware)
-- **Reranking:** BGE reranker (BAAI/bge-reranker-v2-m3)
-- **Top-K:** 12 → 4 after reranking
-
-### 4. Generation
-- **LLM:** Qwen3:4b via Ollama
-- **Response:** Streaming with thinking tags
-- **Context:** Retrieved chunks + metadata
-
-## 🐳 Docker Services
-
-### Elasticsearch Container
-```yaml
-# docker-compose-elasticsearch.yml
-services:
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
-    ports:
-      - "9200:9200"
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-```
-
-### Container Management
-```bash
-# Start services
-docker-compose -f docker-compose-elasticsearch.yml up -d
-
-# Check status
-docker-compose -f docker-compose-elasticsearch.yml ps
-
-# View logs
-docker-compose -f docker-compose-elasticsearch.yml logs elasticsearch
-
-# Stop services
-docker-compose -f docker-compose-elasticsearch.yml down
-
-# Clean up (removes data)
-docker-compose -f docker-compose-elasticsearch.yml down -v
-```
-
-## 🔍 Usage Examples
-
-### Basic Query
-```bash
-python 2_query_system_elasticsearch_hierarchy.py
-```
-```
-Question: explain lottery scheduling
-🤖 Response: Lottery scheduling is a probabilistic scheduling algorithm...
-```
-
-### Inspect System
-```bash
-python 3_inspect_elasticsearch.py
-```
-Shows index statistics, document counts, and sample data.
-
-### Advanced Usage
+### Automatic GPU Detection
 ```python
-# Custom query with filters
-from elasticsearch_client import ElasticsearchClient
-
-client = ElasticsearchClient()
-results = client.search(
-    query="machine learning", 
-    filters={"metadata.file_type": "pdf"},
-    size=10
-)
+# System automatically detects and uses GPU when available
+Device: NVIDIA GeForce RTX 4090  # Example
+GPU Acceleration: ✅ ENABLED
+Memory: 24.0 GB VRAM
+Expected speedup: 10-20x for embeddings
 ```
 
-## 🚨 Troubleshooting
+### Performance Modes
+- **GPU Mode:** 10-20x faster processing, batch_size=64-128
+- **CPU Mode:** Multi-threaded optimization, batch_size=8-16
+- **Hybrid Mode:** GPU for ML, CPU for graph operations
+
+### GPU-Optimized Libraries
+- **PyTorch with CUDA 12.1**
+- **CuPy** for GPU-accelerated NumPy
+- **GPU-accelerated sentence transformers**
+- **spaCy with CUDA support**
+- **NVIDIA ML monitoring**
+
+## 📋 Configuration
+
+### Model Configuration
+```python
+# LLM: Ollama with qwen3:4b (2.5GB)
+# Embeddings: sentence-transformers/all-mpnet-base-v2
+# Device: Auto-detect CUDA/CPU
+# Batch sizes: GPU=64, CPU=16
+```
+
+### Database Configuration
+```python
+# Elasticsearch: advanced_docs_elasticsearch_v2
+# Neo4j: gpu_chapter_knowledge_v1 
+# Storage: Separate from original system
+```
+
+## 🧪 Testing & Validation
+
+### Quick Testing
+```bash
+# Test SME system
+python SME_1_build_elasticsearch_database.py --test
+python SME_2_query_elasticsearch_system.py
+
+# Test Knowledge Graph system  
+python KG_ENHANCED_MASTER_runner_gpu.py --quick
+```
+
+### Manual Testing
+```bash
+# Check services
+curl http://localhost:9200                    # Elasticsearch
+curl http://localhost:11434/api/tags          # Ollama
+# Neo4j Browser: http://localhost:7474
+```
+
+## 📊 Performance Expectations
+
+### SME System
+- **Index Speed:** ~100-500 docs/minute
+- **Query Speed:** <2 seconds
+- **Memory Usage:** 2-4GB RAM
+
+### Knowledge Graph System
+- **GPU Mode:** 5-20x faster than CPU
+- **Concept Extraction:** 20-30 concepts/chapter
+- **Graph Building:** ~50-200 nodes/minute
+- **Memory Usage:** 4-8GB (CPU), 2-6GB VRAM (GPU)
+
+## 🛠️ Troubleshooting
 
 ### Common Issues
 
-#### 1. Elasticsearch Won't Start
+**1. GPU Not Available**
 ```bash
-# Check if port is in use
-netstat -tulpn | grep 9200
-
-# Check Docker logs
-docker logs elasticsearch-rag
-
-# Restart with clean state
-docker-compose down -v && docker-compose up -d
-```
-
-#### 2. CUDA/GPU Issues
-```bash
-# Check GPU availability
+# Check CUDA installation
 nvidia-smi
-
-# Force CPU mode
-export CUDA_VISIBLE_DEVICES=""
-python 1_build_database_elasticsearch_fixed.py
+# Install CUDA 12.1+ drivers
+# System will automatically fallback to CPU
 ```
 
-#### 3. Out of Memory
+**2. Services Not Running**
 ```bash
-# Reduce batch size in build script
-# Edit embedding batch_size from 32 to 16
-python 1_build_database_elasticsearch_fixed.py
-```
+# Elasticsearch
+docker-compose -f docker-compose-elasticsearch.yml up -d
 
-#### 4. Ollama Connection Failed
-```bash
-# Check if Ollama is running
-curl http://localhost:11434/api/tags
+# Neo4j
+docker-compose -f docker-compose-neo4j.yml up -d
 
-# Start Ollama
+# Ollama
 ollama serve
-
-# Check model availability
-ollama list
+ollama pull qwen3:4b
 ```
 
-### Performance Tuning
-
-#### For Large Document Collections
+**3. Memory Issues**
 ```bash
-# Increase Elasticsearch memory
-docker-compose down
-# Edit docker-compose-elasticsearch.yml:
-# ES_JAVA_OPTS=-Xms2g -Xmx4g
-docker-compose up -d
+# Use quick mode for testing
+python KG_ENHANCED_COMPLETE_RUNNER.py --quick
+
+# Reduce batch sizes in config
+# Monitor memory usage during processing
 ```
 
-#### For Slow Queries
+**4. Import Errors**
 ```bash
-# Reduce retrieval size
-# Edit query script: similarity_top_k=6 instead of 12
-# Disable reranking temporarily for testing
+# Ensure virtual environment is activated
+# Windows: venv\Scripts\activate
+# Linux/Mac: source venv/bin/activate
+
+# Reinstall dependencies
+pip install -r enhanced_requirements.txt
 ```
 
-## 📈 Performance Metrics
-
-### Typical Performance
-- **Index Build:** ~500 docs/minute
-- **Query Response:** <2 seconds
-- **Memory Usage:** ~2GB during indexing, ~500MB during querying
-- **Storage:** ~50MB per 1000 document chunks
-
-### Benchmarking
+### Interactive Troubleshooting
 ```bash
-# Time index building
-time python 1_build_database_elasticsearch_fixed.py
+# Launch comprehensive troubleshooting notebook
+jupyter notebook Enhanced_Knowledge_Graph_Setup_and_Testing.ipynb
 
-# Check Elasticsearch stats
-curl http://localhost:9200/advanced_docs_elasticsearch_v2/_stats
+# Run system diagnostics
+python KG_SETUP_ENHANCED_SYSTEM.py
 ```
 
-## 🔒 Security Notes
+## 📚 Documentation
 
-### Development Mode
-- Elasticsearch runs without authentication
-- All data is stored locally
-- No encryption in transit
+- **`SME_COMPREHENSIVE_MANUAL.md`** - Complete setup guide for normal users
+- **`KNOWLEDGE_GRAPH_QUICKSTART.md`** - Enhanced knowledge graph quick start
+- **`Enhanced_Knowledge_Graph_Setup_and_Testing.ipynb`** - Interactive setup
+- **`enhanced_visualizations/`** - Generated visualizations and reports
 
-### Production Deployment
-- Enable Elasticsearch security features
-- Use HTTPS for all communications
-- Implement proper authentication
-- Regular security updates
+## 🔧 Advanced Configuration
 
-## 🛠️ Development
+### Environment Variables
+```bash
+# GPU Configuration
+export CUDA_VISIBLE_DEVICES=0
+export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:128
 
-### Adding New Document Types
-1. Extend `DocumentProcessor` class
-2. Add file extension to `supported_extensions`
-3. Implement extraction method
-4. Test with sample files
+# Performance Tuning
+export OMP_NUM_THREADS=4
+export TOKENIZERS_PARALLELISM=false
+```
 
-### Customizing Retrieval
-1. Modify `similarity_top_k` in query script
-2. Adjust chunk sizes in build script
-3. Change reranking model
-4. Experiment with different embedding models
-
-### API Integration
+### Custom Configuration
 ```python
-# Example Flask wrapper
-from flask import Flask, request, jsonify
-from elk_rag_system import ELKRAGSystem
-
-app = Flask(__name__)
-rag_system = ELKRAGSystem()
-
-@app.route('/query', methods=['POST'])
-def query():
-    question = request.json['question']
-    result = rag_system.query(question)
-    return jsonify(result)
+# Modify config in individual scripts
+BATCH_SIZE = 64  # GPU mode
+BATCH_SIZE = 16  # CPU mode
+MAX_CONCEPTS = 30
+CLUSTERING_ALGORITHM = "kmeans"
 ```
-
-## 📚 Additional Resources
-
-- [LlamaIndex Documentation](https://docs.llamaindex.ai/)
-- [Elasticsearch Guide](https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html)
-- [Ollama Documentation](https://ollama.ai/docs)
-- [sentence-transformers](https://www.sbert.net/)
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create feature branch
-3. Add tests for new functionality
-4. Submit pull request
+2. Create feature branch: `git checkout -b feature/amazing-feature`
+3. Commit changes: `git commit -am 'Add amazing feature'`
+4. Push to branch: `git push origin feature/amazing-feature`
+5. Submit pull request
 
 ## 📄 License
 
-MIT License - see LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🆘 Support
+## 🙏 Acknowledgments
 
-For issues and questions:
-1. Check troubleshooting section
-2. Search existing GitHub issues
-3. Create new issue with system details and error logs
+- **LlamaIndex** for RAG framework
+- **Elasticsearch** for vector storage
+- **Neo4j** for knowledge graphs
+- **Ollama** for local LLM inference
+- **NVIDIA CUDA** for GPU acceleration
+- **HuggingFace** for transformer models
+
+---
+
+## 🚀 Ready to Get Started?
+
+1. **For basic SME system:** Start with `SME_1_build_elasticsearch_database.py`
+2. **For knowledge graphs:** Run `KG_ENHANCED_MASTER_runner_gpu.py --quick` 
+3. **For step-by-step setup:** Follow `SME_COMPREHENSIVE_MANUAL.md`
+4. **For interactive setup:** Launch `Enhanced_Knowledge_Graph_Setup_and_Testing.ipynb`
+
+**Need help?** Check the troubleshooting section or open an issue!
+
+🎉 **Happy knowledge graphing!** 🎉

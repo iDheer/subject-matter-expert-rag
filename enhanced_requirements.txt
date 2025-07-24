@@ -1,0 +1,215 @@
+# Subject Matter Expert RAG System with Knowledge Graphs
+# Comprehensive requirements for both SME RAG and Knowledge Graph systems
+
+# ============================================================================
+# CORE FRAMEWORK & RAG COMPONENTS (Python 3.12 compatible)
+# ============================================================================
+llama-index>=0.11.0
+llama-index-core>=0.11.0
+llama-index-embeddings-huggingface>=0.3.0
+llama-index-llms-ollama>=0.2.0
+llama-index-vector-stores-elasticsearch>=0.4.3
+llama-index-retrievers-bm25>=0.2.0
+llama-index-postprocessor-flag-embedding-reranker>=0.2.0
+
+# ============================================================================
+# DATABASE & STORAGE
+# ============================================================================
+# Elasticsearch for SME system
+elasticsearch==8.11.1
+elasticsearch-dsl==8.11.0
+
+# Neo4j for Knowledge Graphs
+neo4j==5.14.1
+py2neo==2021.2.4
+
+# ============================================================================
+# GPU ACCELERATION & DEEP LEARNING
+# ============================================================================
+# PyTorch with CUDA support (install CUDA version based on your GPU)
+torch>=2.1.0
+torchvision>=0.16.0
+torchaudio>=2.1.0
+# For CUDA support, install from: https://download.pytorch.org/whl/cu121
+
+# GPU-accelerated libraries
+cupy-cuda12x>=12.0.0  # CUDA 12.x support
+nvidia-ml-py>=12.535.108
+pynvml>=11.5.0
+
+# ============================================================================
+# LANGUAGE MODELS & EMBEDDINGS
+# ============================================================================
+sentence-transformers>=2.2.2
+transformers>=4.35.0
+tokenizers>=0.15.0
+FlagEmbedding>=1.2.5
+datasets>=2.14.6
+
+# ============================================================================
+# NATURAL LANGUAGE PROCESSING
+# ============================================================================
+spacy>=3.7.2
+nltk>=3.8.1
+textstat>=0.7.3
+keybert>=0.8.0
+yake>=0.4.8
+
+# Download spaCy model: python -m spacy download en_core_web_sm
+
+# ============================================================================
+# MACHINE LEARNING & CLUSTERING
+# ============================================================================
+scikit-learn>=1.3.2
+numpy>=1.24.3
+scipy>=1.11.4
+faiss-gpu>=1.7.4  # GPU-accelerated similarity search
+umap-learn>=0.5.4
+
+# ============================================================================
+# DOCUMENT PROCESSING
+# ============================================================================
+# File format support
+PyPDF2>=3.0.1
+python-docx>=1.1.0
+python-pptx>=0.6.23
+openpyxl>=3.1.2
+xlrd>=2.0.1
+
+# Advanced document parsing
+pymupdf>=1.23.8  # Superior PDF processing
+pypdf>=3.17.1
+docx2txt>=0.8
+pdfplumber>=0.10.3
+
+# ============================================================================
+# WEB & API
+# ============================================================================
+requests>=2.31.0
+httpx>=0.25.2
+fastapi>=0.104.1
+uvicorn>=0.24.0
+aiofiles>=23.2.0
+
+# ============================================================================
+# DATA VISUALIZATION & PLOTTING
+# ============================================================================
+plotly>=5.17.0
+matplotlib>=3.8.2
+seaborn>=0.13.0
+networkx>=3.2.1
+dash>=2.14.2
+kaleido>=0.2.1  # For static image export
+
+# ============================================================================
+# DATA PROCESSING & ANALYSIS
+# ============================================================================
+pandas>=2.1.3
+polars>=0.19.19  # Fast dataframes alternative
+pyarrow>=14.0.1
+openpyxl>=3.1.2
+
+# ============================================================================
+# DEVELOPMENT & DEBUGGING
+# ============================================================================
+jupyter>=1.0.0
+ipykernel>=6.26.0
+ipywidgets>=8.1.1
+notebook>=7.0.6
+jupyterlab>=4.0.8
+
+# Debugging and profiling
+memory-profiler>=0.61.0
+line-profiler>=4.1.1
+py-spy>=0.3.14
+
+# ============================================================================
+# UTILITY LIBRARIES
+# ============================================================================
+tqdm>=4.66.1
+rich>=13.7.0
+click>=8.1.7
+pydantic>=2.5.0
+python-dotenv>=1.0.0
+pathlib2>=2.3.7
+typing-extensions>=4.8.0
+
+# ============================================================================
+# CONTAINERIZATION & DEPLOYMENT
+# ============================================================================
+docker>=6.1.3
+docker-compose>=1.29.2
+
+# ============================================================================
+# TESTING & QUALITY ASSURANCE
+# ============================================================================
+pytest>=7.4.3
+pytest-asyncio>=0.21.1
+pytest-cov>=4.1.0
+black>=23.11.0
+flake8>=6.1.0
+mypy>=1.7.1
+
+# ============================================================================
+# ASYNC & CONCURRENCY
+# ============================================================================
+asyncio>=3.4.3
+aiohttp>=3.9.1
+concurrent-futures>=3.1.1
+
+# ============================================================================
+# LOGGING & MONITORING
+# ============================================================================
+loguru>=0.7.2
+structlog>=23.2.0
+prometheus-client>=0.19.0
+
+# ============================================================================
+# CONFIGURATION & ENVIRONMENT
+# ============================================================================
+pyyaml>=6.0.1
+toml>=0.10.2
+configparser>=6.0.0
+
+# ============================================================================
+# SYSTEM UTILITIES
+# ============================================================================
+psutil>=5.9.6
+GPUtil>=1.4.0
+py-cpuinfo>=9.0.0
+
+# ============================================================================
+# SPECIALIZED LIBRARIES
+# ============================================================================
+# Graph analysis
+igraph>=0.11.3
+graph-tool>=2.57  # Optional: Advanced graph analysis (Linux/Mac)
+
+# Time series and advanced analytics
+statsmodels>=0.14.0
+prophet>=1.1.5
+
+# ============================================================================
+# OPTIONAL GPU LIBRARIES (Install if you have compatible hardware)
+# ============================================================================
+# rapids-cudf>=23.10.0     # GPU DataFrames (NVIDIA)
+# rapids-cuml>=23.10.0     # GPU Machine Learning (NVIDIA)
+# cupy-cuda12x>=12.0.0     # GPU-accelerated NumPy
+
+# ============================================================================
+# INSTALLATION NOTES
+# ============================================================================
+# 1. Install CUDA 12.1+ drivers for GPU acceleration
+# 2. For CPU-only installation, remove GPU-specific packages
+# 3. Run: pip install -r enhanced_requirements.txt
+# 4. Download spaCy model: python -m spacy download en_core_web_sm
+# 5. Verify installation: python -c "import torch; print(torch.cuda.is_available())"
+
+# ============================================================================
+# SYSTEM COMPATIBILITY
+# ============================================================================
+# Python: 3.11+ (recommended)
+# Operating System: Windows 10/11, Ubuntu 20.04+, macOS 12+
+# Memory: 8GB RAM minimum, 16GB+ recommended
+# GPU: NVIDIA GTX 1060+ or RTX series (optional, CPU fallback available)
+# Disk Space: 10GB+ for models and dependencies

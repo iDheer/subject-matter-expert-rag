@@ -17,10 +17,33 @@ ES_STORAGE_DIR = "./elasticsearch_storage_v2"
 
 # --- 1. CONFIGURE MODELS ---
 print("--- Configuring models ---")
-Settings.llm = Ollama(model="qwen3:4b", request_timeout=300.0)
+
+# Auto-detect device (use CPU if CUDA not available)
+import torch
+device = "cuda" if torch.cuda.is_available() else "cpu"
+print(f"--- Using device: {device} ---")
+
+# Configure Ollama with GPU settings
+if device == "cuda":
+    # For GPU usage, we need to ensure Ollama uses GPU memory
+    # Set environment variables to force GPU usage
+    os.environ['CUDA_VISIBLE_DEVICES'] = '0'  # Use first GPU
+    os.environ['OLLAMA_NUM_GPU'] = '1'       # Number of GPUs to use
+    os.environ['OLLAMA_GPU_LAYERS'] = '35'   # Number of layers to offload to GPU
+    
+    Settings.llm = Ollama(
+        model="qwen3:4b",
+        request_timeout=300.0,
+        base_url="http://localhost:11434",
+    )
+    print("🟢 Configured Ollama to use GPU memory")
+else:
+    Settings.llm = Ollama(model="qwen3:4b", request_timeout=300.0)
+    print("🟡 Using CPU (CUDA not available)")
+
 Settings.embed_model = HuggingFaceEmbedding(
     model_name="sentence-transformers/all-mpnet-base-v2",
-    device="cuda"
+    device=device
 )
 
 # --- 2. LOAD WITH PROPER HIERARCHY SUPPORT ---
@@ -87,7 +110,7 @@ try:
     reranker = SentenceTransformerRerank(
         top_n=4,
         model="BAAI/bge-reranker-v2-m3",
-        device="cuda"
+        device=device
     )
     
     # Query engine
@@ -105,7 +128,7 @@ except Exception as e:
     
     # Fallback to simple retriever
     base_retriever = index.as_retriever(similarity_top_k=10)
-    reranker = SentenceTransformerRerank(top_n=5, model="BAAI/bge-reranker-v2-m3", device="cuda")
+    reranker = SentenceTransformerRerank(top_n=5, model="BAAI/bge-reranker-v2-m3", device=device)
     query_engine = RetrieverQueryEngine.from_args(base_retriever, node_postprocessors=[reranker], streaming=True)
 
 def print_qwen3_response_stream(response_stream):

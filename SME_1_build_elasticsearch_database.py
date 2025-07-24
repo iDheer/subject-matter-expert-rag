@@ -1,4 +1,5 @@
 import os
+import time
 from elasticsearch import Elasticsearch
 from llama_index.core import (
     SimpleDirectoryReader,
@@ -10,6 +11,7 @@ from llama_index.vector_stores.elasticsearch import ElasticsearchStore
 from llama_index.core.node_parser import HierarchicalNodeParser, get_leaf_nodes
 from llama_index.llms.ollama import Ollama
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from tqdm import tqdm
 
 # --- 0. Define Constants ---
 ES_ENDPOINT = "http://localhost:9200"
@@ -19,10 +21,16 @@ DATA_PATH = "./data_large"
 
 # --- 1. CONFIGURE MODELS ---
 print("--- Configuring models ---")
-Settings.llm = Ollama(model="qwen3:8b", request_timeout=300.0)
+Settings.llm = Ollama(model="qwen3:4b", request_timeout=300.0)
+
+# Auto-detect device (use CPU if CUDA not available)
+import torch
+device = "cuda" if torch.cuda.is_available() else "cpu"
+print(f"--- Using device: {device} ---")
+
 Settings.embed_model = HuggingFaceEmbedding(
     model_name="sentence-transformers/all-mpnet-base-v2",
-    device="cuda"
+    device=device
 )
 
 # --- 2. CHECK ELASTICSEARCH CONNECTION ---
@@ -30,15 +38,15 @@ print(f"--- Connecting to Elasticsearch at {ES_ENDPOINT} ---")
 try:
     es_client = Elasticsearch([ES_ENDPOINT])
     es_info = es_client.info()
-    print(f"✅ Connected to Elasticsearch {es_info.body['version']['number']}")
+    print(f"[OK] Connected to Elasticsearch {es_info.body['version']['number']}")
     
     # Delete existing index if it exists (fresh start)
     if es_client.indices.exists(index=INDEX_NAME):
         es_client.indices.delete(index=INDEX_NAME)
-        print(f"🗑️ Deleted existing index: {INDEX_NAME}")
+        print(f"[DELETE] Deleted existing index: {INDEX_NAME}")
         
 except Exception as e:
-    print(f"❌ Failed to connect to Elasticsearch: {e}")
+    print(f"[ERROR] Failed to connect to Elasticsearch: {e}")
     exit()
 
 # --- 3. INITIALIZE ELASTICSEARCH STORAGE ---
@@ -75,11 +83,17 @@ print(f"Generated {len(nodes)} total nodes and {len(leaf_nodes)} leaf nodes for 
 
 # --- 6. CRITICAL FIX: Add ALL nodes to docstore FIRST ---
 print(f"--- Adding ALL {len(nodes)} nodes to docstore (including parents) ---")
-storage_context.docstore.add_documents(nodes)
+from tqdm import tqdm
+
+# Add nodes in batches with progress bar for better performance
+batch_size = 100
+for i in tqdm(range(0, len(nodes), batch_size), desc="Adding nodes to docstore"):
+    batch = nodes[i:i + batch_size]
+    storage_context.docstore.add_documents(batch)
 
 # Verify all nodes are in docstore
 docstore_count = len(storage_context.docstore.docs)
-print(f"✅ Docstore now contains {docstore_count} nodes")
+print(f"[OK] Docstore now contains {docstore_count} nodes")
 
 # --- 7. BUILD INDEX FROM LEAF NODES ---
 print(f"--- Building vector index from {len(leaf_nodes)} leaf nodes... ---")
@@ -93,18 +107,25 @@ vector_index = VectorStoreIndex(
 
 # --- 8. VERIFY HIERARCHY RELATIONSHIPS ---
 print("--- Verifying hierarchy relationships ---")
+start_time = time.time()
+
 hierarchy_ok = True
 missing_parents = []
+docstore_ids = set(storage_context.docstore.docs.keys())  # Pre-compute set for O(1) lookup
 
-for leaf_node in leaf_nodes:
+# Use tqdm for progress bar
+for leaf_node in tqdm(leaf_nodes, desc="Checking parent-child relationships"):
     if hasattr(leaf_node, 'parent_node') and leaf_node.parent_node:
         parent_id = leaf_node.parent_node.node_id
-        if parent_id not in storage_context.docstore.docs:
+        if parent_id not in docstore_ids:  # O(1) lookup instead of O(n)
             missing_parents.append(parent_id)
             hierarchy_ok = False
 
+verification_time = time.time() - start_time
+print(f"[TIMING] Hierarchy verification completed in {verification_time:.2f} seconds")
+
 if hierarchy_ok:
-    print("✅ All parent-child relationships verified successfully")
+    print("[OK] All parent-child relationships verified successfully")
 else:
     print(f"⚠️ Warning: {len(missing_parents)} parent nodes missing from docstore")
     print("This may cause AutoMergingRetriever issues")
@@ -114,7 +135,7 @@ print(f"--- Persisting storage to '{ES_STORAGE_DIR}' ---")
 if os.path.exists(ES_STORAGE_DIR):
     import shutil
     shutil.rmtree(ES_STORAGE_DIR)
-    print(f"🗑️ Removed existing storage directory")
+    print(f"[DELETE] Removed existing storage directory")
 
 storage_context.persist(persist_dir=ES_STORAGE_DIR)
 
@@ -134,15 +155,15 @@ try:
         storage_context=test_storage
     )
     
-    print(f"✅ Verification successful!")
+    print(f"[OK] Verification successful!")
     print(f"   - Docstore: {test_docstore_count} nodes")
     print(f"   - Index: Ready for querying")
     
 except Exception as e:
-    print(f"❌ Verification failed: {e}")
+    print(f"[ERROR] Verification failed: {e}")
 
 print("\n--- Ingestion Complete ---")
-print(f"✅ Successfully built index with Elasticsearch vector store")
+print(f"[SUCCESS] Successfully built index with Elasticsearch vector store")
 print(f"📁 Docstore saved to: {ES_STORAGE_DIR}")
 print(f"🔍 Vector embeddings stored in Elasticsearch index: {INDEX_NAME}")
 print(f"🏗️ Hierarchy preserved for AutoMergingRetriever")
