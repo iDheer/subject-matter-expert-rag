@@ -1,0 +1,12 @@
+{
+  "total_chapters": 862,
+  "total_concepts": 3485,
+  "avg_concepts_per_chapter": 4.0429234338747095,
+  "concept_types_distribution": {
+    "explicit_objective": 2018,
+    "key_term": 892,
+    "section_concept": 489,
+    "question_concept": 86
+  },
+  "generated_at": "2025-07-24T22:25:48.865988"
+}

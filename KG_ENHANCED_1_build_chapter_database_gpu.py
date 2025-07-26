@@ -630,8 +630,8 @@ class GPUAcceleratedChapterBuilder:
             model_name="sentence-transformers/all-mpnet-base-v2",
             device=self.device,
             # GPU optimization settings
-            normalize_embeddings=True,
-            batch_size=64 if self.device == "cuda" else 16  # Larger batch for GPU
+            
+            
         )
         
         logger.info(f"✅ Models configured for {self.device}")

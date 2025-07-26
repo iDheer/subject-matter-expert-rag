@@ -63,8 +63,7 @@ class GPUAcceleratedEnhancedChapterQuerySystem:
         # Setup GPU-accelerated embedding model for queries
         Settings.embed_model = HuggingFaceEmbedding(
             model_name="sentence-transformers/all-mpnet-base-v2",
-            device=self.device,
-            batch_size=32 if self.device == "cuda" else 8
+            device=self.device
         )
         
         # Setup sentence transformer for similarity searches
