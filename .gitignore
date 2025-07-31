@@ -3,6 +3,7 @@ environment/
 venv/
 env/
 .env
+!.env.example
 .venv
 *.venv
 
@@ -131,7 +132,7 @@ neo4j_logs/
 .env
 .env.local
 .env.production
-# Keep template: !.env.template
+!.env.example
 
 # PyTorch model cache
 .torch/
