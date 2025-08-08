@@ -58,7 +58,7 @@ class GPUAcceleratedEnhancedChapterQuerySystem:
         logger.info("🔧 Setting up GPU-accelerated models...")
         
         # Setup LLM
-        Settings.llm = Ollama(model="qwen3:4b", request_timeout=300.0)
+        Settings.llm = Ollama(model="qwen3:4b", request_timeout=3000.0)
         
         # Setup GPU-accelerated embedding model for queries
         Settings.embed_model = HuggingFaceEmbedding(

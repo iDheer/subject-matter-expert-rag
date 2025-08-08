@@ -1,12 +1,12 @@
-# 3_inspect_elasticsearch.py
+# 3_inspect_elasticsearch_fixed.py
 import os
 from elasticsearch import Elasticsearch
 from llama_index.core import StorageContext
 
-# --- 0. Define Constants ---
+# --- 0. Define Constants (FIXED TO MATCH BUILDER) ---
 ES_ENDPOINT = "http://localhost:9200"
-INDEX_NAME = "advanced_docs_elasticsearch"
-ES_STORAGE_DIR = "./elasticsearch_storage"
+INDEX_NAME = "advanced_docs_elasticsearch_v2"  # Fixed to match builder
+ES_STORAGE_DIR = "./elasticsearch_storage_v2"   # Fixed to match builder
 
 def inspect_elasticsearch_index():
     """Inspect the Elasticsearch index"""
@@ -15,7 +15,7 @@ def inspect_elasticsearch_index():
     try:
         es_client = Elasticsearch([ES_ENDPOINT])
         es_info = es_client.info()
-        print(f"Connected to Elasticsearch {es_info['version']['number']}")
+        print(f"Connected to Elasticsearch {es_info.body['version']['number']}")
         
         if not es_client.indices.exists(index=INDEX_NAME):
             print(f"❌ Index '{INDEX_NAME}' does not exist!")
@@ -75,19 +75,60 @@ def inspect_local_storage():
         print(f"📁 Docstore contains {len(all_nodes)} nodes")
         
         # Count node types
-        parent_nodes = [n for n in all_nodes if n.child_nodes]
-        leaf_nodes = [n for n in all_nodes if not n.child_nodes]
+        parent_nodes = [n for n in all_nodes if hasattr(n, 'child_nodes') and n.child_nodes]
+        leaf_nodes = [n for n in all_nodes if not (hasattr(n, 'child_nodes') and n.child_nodes)]
         
         print(f"  - Parent nodes: {len(parent_nodes)}")
         print(f"  - Leaf nodes: {len(leaf_nodes)}")
         
         # Show hierarchy info
         if parent_nodes:
-            print(f"  - Average children per parent: {sum(len(n.child_nodes) for n in parent_nodes) / len(parent_nodes):.1f}")
+            total_children = sum(len(n.child_nodes) for n in parent_nodes)
+            print(f"  - Average children per parent: {total_children / len(parent_nodes):.1f}")
+        
+        # Sample node content
+        print(f"\n📝 Sample node content:")
+        if all_nodes:
+            sample_node = all_nodes[0]
+            content_preview = sample_node.get_content()[:200] + "..."
+            print(f"  Content: {content_preview}")
+            print(f"  Node ID: {sample_node.node_id}")
+            print(f"  Has children: {hasattr(sample_node, 'child_nodes') and bool(sample_node.child_nodes)}")
         
     except Exception as e:
         print(f"❌ Error inspecting local storage: {e}")
 
+def inspect_hierarchy_integrity():
+    """Check integrity of hierarchical relationships"""
+    print("\n=== Checking Hierarchy Integrity ===")
+    
+    try:
+        storage_context = StorageContext.from_defaults(persist_dir=ES_STORAGE_DIR)
+        docstore = storage_context.docstore
+        all_nodes = list(docstore.docs.values())
+        
+        # Check parent-child relationships
+        orphaned_children = 0
+        valid_relationships = 0
+        
+        for node in all_nodes:
+            if hasattr(node, 'parent_node') and node.parent_node:
+                parent_id = node.parent_node.node_id
+                if parent_id in docstore.docs:
+                    valid_relationships += 1
+                else:
+                    orphaned_children += 1
+        
+        print(f"✅ Valid parent-child relationships: {valid_relationships}")
+        if orphaned_children > 0:
+            print(f"⚠️  Orphaned children (missing parents): {orphaned_children}")
+        else:
+            print(f"✅ No orphaned children found")
+        
+    except Exception as e:
+        print(f"❌ Error checking hierarchy: {e}")
+
 if __name__ == "__main__":
     inspect_elasticsearch_index()
     inspect_local_storage()
+    inspect_hierarchy_integrity()
