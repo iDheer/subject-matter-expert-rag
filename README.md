@@ -173,6 +173,41 @@ python SME_2_query_elasticsearch_system.py
 - `/help` - Show help
 - `exit` - Exit system
 
+## 🔌 API Integration for UI Teams
+
+### Quick Integration
+
+**Base URL:** `http://your-server-ip:8000`
+
+**Main Query Endpoint:** `POST /query`
+
+**Minimal Integration Example:**
+```javascript
+const response = await fetch('http://your-server:8000/query', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+        question: "What are the main topics?",
+        use_memory: true
+    })
+});
+
+const data = await response.json();
+console.log(data.answer);    // SME response
+console.log(data.sources);   // Supporting documents
+```
+
+### All Available Endpoints
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/query` | POST | **Main endpoint - Ask questions** |
+| `/status` | GET | Check system health |
+| `/memory/toggle` | POST | Toggle conversation memory |
+| `/memory/clear` | POST | Clear conversation history |
+| `/memory/status` | GET | Get memory status |
+| `/docs` | GET | Interactive API documentation |
+
 ### API Interface
 
 **Base URL:** `http://localhost:8000`
