@@ -193,8 +193,61 @@ const response = await fetch('http://your-server:8000/query', {
 });
 
 const data = await response.json();
-console.log(data.answer);    // SME response
-console.log(data.sources);   // Supporting documents
+
+// Use the response
+console.log(data.answer);    // "Based on the documents, the main topics include..."
+console.log(data.sources);   // Array of supporting documents
+console.log(data.memory_status); // "Memory enabled - 1 exchanges"
+```
+
+**Complete Response Structure:**
+```json
+{
+    "answer": "Based on the documents, the main topics include...",
+    "sources": [
+        {
+            "index": 1,
+            "score": 0.8756,
+            "file_name": "document1.pdf", 
+            "node_type": "Leaf",
+            "content_snippet": "The document discusses...",
+            "node_id": "node_123"
+        }
+    ],
+    "memory_status": "Memory enabled - 1 exchanges"
+}
+```
+
+**UI Implementation:**
+```javascript
+// Complete integration example
+async function askSME(question) {
+    try {
+        const response = await fetch('http://your-server:8000/query', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                question: question,
+                use_memory: true
+            })
+        });
+        
+        const data = await response.json();
+        
+        // Display answer
+        document.getElementById('answer').innerHTML = data.answer;
+        
+        // Display sources
+        const sourcesHtml = data.sources.map(source => 
+            `<div>📄 ${source.file_name} (Score: ${source.score})</div>`
+        ).join('');
+        document.getElementById('sources').innerHTML = sourcesHtml;
+        
+        return data;
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
 ```
 
 ### All Available Endpoints
