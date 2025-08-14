@@ -396,3 +396,6 @@ try:
 
 except KeyboardInterrupt:
     print("\n👋 Exiting gracefully. Goodbye!")
+
+# Export ChatMemoryManager for API use
+__all__ = ['ChatMemoryManager']

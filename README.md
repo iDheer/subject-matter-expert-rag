@@ -1,503 +1,771 @@
-# 🎓 Subject Matter Expert RAG System with GPU-Enhanced Knowledge Graphs
+# SME (Subject Matter Expert) System
 
-[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
-[![CUDA](https://img.shields.io/badge/CUDA-12.1+-green.svg)](https://developer.nvidia.com/cuda-downloads)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![GPU Accelerated](https://img.shields.io/badge/GPU-Accelerated-red.svg)](https://pytorch.org/)
+A sophisticated RAG (Retrieval Augmented Generation) system that provides intelligent document querying with conversational memory. Built with LlamaIndex, Elasticsearch, and FastAPI.
 
-A comprehensive **Retrieval-Augmented Generation (RAG)** system that combines traditional Elasticsearch-based document retrieval with advanced **GPU-accelerated Knowledge Graphs** for enhanced subject matter expertise and intelligent document analysis.
-
-## 🌟 Key Features
-
-### 📚 SME (Subject Matter Expert) System
-- **Elasticsearch-powered** vector search with hierarchical document chunking
-- **AutoMerging Retriever** for context-aware document retrieval
-- **BGE reranker** for improved result relevance
-- **Streaming responses** with Qwen 4B language model
-- **🧠 Conversational Memory** - Remembers context across queries for natural dialogue
-- **Intelligent Summarization** - Uses Qwen to maintain conversation history within context limits
-
-### 🧠 GPU-Enhanced Knowledge Graph System
-- **Dynamic concept extraction** using NLP and GPU acceleration
-- **Neo4j graph database** with advanced relationship modeling
-- **Chapter-based knowledge organization** for complex documents
-- **Interactive graph visualization** with enhanced analytics
-- **Multi-modal querying** (text + graph traversal)
-
-### 🚀 Performance Features
-- **GPU acceleration** with CUDA support
-- **Quantized model support** (INT4/INT8) for memory efficiency
-- **Batch processing** for large document collections
-- **Memory optimization** for RTX 4050 6GB and similar GPUs
-
-## 🏗️ Project Structure
+## 🏗️ Architecture
 
 ```
-📁 Subject Matter Expert RAG System
-├── 🔍 SME System (Elasticsearch + Conversational Memory)
-│   ├── SME_1_build_elasticsearch_database.py    # Build document database
-│   ├── SME_2_query_elasticsearch_system.py      # Interactive querying with memory
-│   └── SME_3_inspect_elasticsearch_database.py  # Database inspection & analysis
-│
-├── 🧠 Knowledge Graph System (GPU-accelerated)
-│   ├── KG_ENHANCED_1_build_chapter_database_gpu.py   # Chapter extraction & processing
-│   ├── KG_ENHANCED_2_build_knowledge_graph_gpu.py    # Graph construction & relationships
-│   ├── KG_ENHANCED_3_query_knowledge_graph_gpu.py    # Intelligent graph querying
-│   ├── KG_ENHANCED_4_visualize_knowledge_graph_gpu.py # Interactive visualization
-│   └── KG_ENHANCED_MASTER_runner_gpu.py              # Complete pipeline runner
-│
-├── 🛠️ Configuration & Services
-│   ├── docker-compose-elasticsearch.yml         # Elasticsearch container setup
-│   ├── docker-compose-neo4j.yml                # Neo4j graph database setup
-│   ├── requirements.txt                        # Essential Python dependencies
-│   └── enhanced_requirements.txt               # Full-featured dependencies
-│
-├── 🧪 Testing & Analysis
-│   ├── questions.json                          # Test questions for evaluation
-│   └── rag_test_results.txt                   # System performance results
-│
-└── 📖 Documentation
-    ├── README.md                               # This comprehensive guide
-    └── SME_SETUP_MANUAL.md                    # Detailed setup instructions
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   UI Frontend   │───▶│   SME API        │───▶│  Elasticsearch  │
+│   (Web/Mobile)  │    │   (FastAPI)      │    │  Vector Store   │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+                                │
+                                ▼
+                       ┌──────────────────┐
+                       │   Ollama LLM     │
+                       │   (Qwen3:4b)     │
+                       └──────────────────┘
 ```
 
-## 📋 System Requirements
+## 📁 Project Structure
 
-### Hardware Requirements
-- **Operating System**: Windows 10/11, Linux (Ubuntu 20.04+), macOS 12+
-- **Python**: 3.11 or higher
-- **GPU**: NVIDIA GPU with 6GB+ VRAM (RTX 4050 or better) - *Optional, CPU fallback available*
-- **RAM**: 16GB+ recommended (8GB minimum)
-- **Storage**: 10GB+ free space
+```
+sme-system/
+├── SME_1_build_elasticsearch_database.py    # Database builder
+├── SME_2_query_elasticsearch_system.py      # CLI query system
+├── SME_3_inspect_elasticsearch_database.py  # Database inspector
+├── api_server.py                            # FastAPI REST API
+├── test_api.py                              # API test suite
+├── docker-compose-elasticsearch.yml         # Elasticsearch container
+├── requirements.txt                         # Core dependencies
+├── requirements_api.txt                     # API dependencies
+├── data_large/                             # Document directory
+├── elasticsearch_storage_v2/               # Generated storage
+└── README.md                               # This file
+```
 
-### Required Services
-- **Elasticsearch** 8.x (port 9200)
-- **Neo4j** 5.x (ports 7687, 7474)
-- **Ollama** with Qwen models (port 11434)
+## 🚀 Quick Start
 
-### GPU Memory Requirements
-| System | FP16 | INT8 | INT4 | RTX 4050 Compatible |
-|--------|------|------|------|---------------------|
-| SME System | 10.1 GB ❌ | 6.6 GB ❌ | **4.9 GB** ✅ | INT4 Only |
-| Knowledge Graph | 9.2 GB ❌ | **5.7 GB** ⚠️ | **4.0 GB** ✅ | INT8/INT4 |
+### Prerequisites
 
-## 🚀 Quick Start Guide
+- **Python 3.9+**
+- **Docker & Docker Compose**
+- **Git** (optional)
+- **8GB+ RAM** (16GB recommended)
+- **GPU with CUDA** (optional but recommended)
 
-### 1. Repository Setup
+### Step 1: Install Dependencies
+
 ```bash
-# Clone the repository
-git clone https://github.com/iDheer/subject-matter-expert-rag.git
-cd subject-matter-expert-rag
-
-# Create virtual environment
-python -m venv venv
-
-# Activate virtual environment
-# Windows:
-venv\Scripts\activate
-# Linux/macOS:
-source venv/bin/activate
-
-# Install dependencies
+# Core dependencies
 pip install -r requirements.txt
 
-# For full features with GPU acceleration:
-# pip install -r enhanced_requirements.txt
-
-# Download spaCy model
-python -m spacy download en_core_web_sm
+# API dependencies
+pip install -r requirements_api.txt
 ```
 
-**Requirements Files:**
-- `requirements.txt` - Essential dependencies for core functionality
-- `enhanced_requirements.txt` - Full-featured with GPU acceleration, advanced tools, and development utilities
+### Step 2: Start Elasticsearch
 
-### 2. Service Setup
-
-#### Option A: Docker (Recommended)
 ```bash
-# Start Elasticsearch
+# Start Elasticsearch container
 docker-compose -f docker-compose-elasticsearch.yml up -d
 
-# Start Neo4j
-docker-compose -f docker-compose-neo4j.yml up -d
+# Verify it's running
+curl http://localhost:9200
 ```
 
-#### Option B: Manual Installation
+### Step 3: Install and Configure Ollama
+
 ```bash
-# Install Elasticsearch 8.x
-# Windows: Download from https://www.elastic.co/downloads/elasticsearch
-# Linux: 
-sudo apt-get install elasticsearch
-# macOS: 
-brew install elasticsearch
-
-# Install Neo4j 5.x
-# Windows: Download from https://neo4j.com/download/
-# Linux: 
-sudo apt-get install neo4j
-# macOS: 
-brew install neo4j
-
-# Start services
-sudo systemctl start elasticsearch
-sudo systemctl start neo4j
-```
-
-### 3. Ollama Setup
-```bash
-# Install Ollama
-# Windows:
-winget install Ollama.Ollama
-# Linux:
+# Install Ollama (Linux/Mac)
 curl -fsSL https://ollama.ai/install.sh | sh
-# macOS:
-brew install ollama
 
-# Start Ollama service
-ollama serve
+# Windows: Download from https://ollama.ai/download
 
-# Pull required model (quantized for GPU efficiency)
-ollama pull qwen3:4b        # Standard version (8GB VRAM)
-ollama pull qwen3:4b-q4_0   # 4-bit quantized (recommended for 6GB GPUs)
-ollama pull qwen3:4b-q8_0   # 8-bit quantized (balanced option)
+# Download the Qwen3:4b model
+ollama pull qwen3:4b
+
+# Verify installation
+ollama list
 ```
 
-### 4. Data Preparation
+### Step 4: Prepare Documents
+
 ```bash
 # Create data directory
-mkdir data_large
+mkdir -p data_large
 
-# Place your PDF documents in data_large/ folder
-# Supported formats: PDF, TXT, DOCX
-# Example structure:
-# data_large/
-#   ├── textbook.pdf
-#   ├── research_paper.pdf
-#   └── documentation.pdf
+# Add your documents (supports .txt, .pdf, .docx, .md)
+cp /path/to/your/documents/* data_large/
+
+# Verify documents
+ls data_large/
 ```
 
-## 🎯 Usage Instructions
+### Step 5: Build Database
 
-### SME System (Elasticsearch + Conversational Memory)
-
-#### Step 1: Build Database
 ```bash
+# This will take 10-30 minutes depending on document size
 python SME_1_build_elasticsearch_database.py
 ```
-**What it does:**
-- Processes documents in `data_large/` folder
-- Creates hierarchical document chunks
-- Builds Elasticsearch vector index
-- Sets up AutoMerging retrieval system
 
-#### Step 2: Interactive Querying
+### Step 6: Start API Server
+
+#### Option A: Using the startup script (Linux/Mac/WSL)
 ```bash
+# Make script executable
+chmod +x start_api.sh
+
+# Run startup script
+./start_api.sh
+```
+
+#### Option B: Manual startup (Windows/All platforms)
+```bash
+# 1. Check prerequisites
+curl http://localhost:9200  # Elasticsearch
+curl http://localhost:11434/api/tags  # Ollama
+
+# 2. Install API dependencies
+pip install fastapi uvicorn[standard] pydantic python-multipart
+
+# 3. Verify database exists
+ls elasticsearch_storage_v2/  # Linux/Mac
+dir elasticsearch_storage_v2\  # Windows
+
+# 4. Start the API server
+python api_server.py
+
+# Wait for: "🎉 SME API Server ready!"
+```
+
+#### Troubleshooting Startup
+If you get errors, check each prerequisite:
+
+```bash
+# Check Elasticsearch
+python -c "import requests; print('ES:', requests.get('http://localhost:9200').status_code)"
+
+# Check Ollama
+python -c "import requests; print('Ollama:', requests.get('http://localhost:11434/api/tags').status_code)"
+
+# Check database files
+python SME_3_inspect_elasticsearch_database.py
+
+# Check Python dependencies
+python -c "import fastapi, llama_index; print('Dependencies OK')"
+```
+
+### Step 7: Test the System
+
+```bash
+# Run test suite
+python test_api.py
+
+# Or visit interactive docs
+# http://localhost:8000/docs
+```
+
+## 🔧 Usage
+
+### CLI Interface
+
+```bash
+# Interactive command-line interface
 python SME_2_query_elasticsearch_system.py
 ```
-**Features:**
-- **Natural conversations** with memory
-- **Context-aware responses** that reference previous queries
-- **Intelligent summarization** when conversation gets long
-- **Memory management** commands
 
-**Example Conversation:**
-```
-💬 Question: What is virtual memory?
-🤖 Response: Virtual memory is a memory management technique that provides an idealized abstraction of storage resources...
-
-💬 Question: How does paging work with it?
-🤖 Response: Building on our discussion of virtual memory, paging works by dividing memory into fixed-size blocks...
-
-💬 Question: /status
-📊 Memory enabled - 2 exchanges
-
-💬 Question: /clear
-🧹 Conversation memory cleared
-```
-
-**Available Commands:**
-- `/memory` - Toggle conversation memory on/off
+**Available CLI commands:**
+- Type questions normally for responses
+- `/memory` - Toggle conversation memory
 - `/clear` - Clear conversation history
 - `/status` - Show memory status
-- `/help` - Display all commands
-- `exit` - Exit the system
+- `/help` - Show help
+- `exit` - Exit system
 
-#### Step 3: Database Inspection (Optional)
-```bash
-python SME_3_inspect_elasticsearch_database.py
+### API Interface
+
+**Base URL:** `http://localhost:8000`
+
+**Interactive Documentation:** `http://localhost:8000/docs`
+
+#### Main Endpoints
+
+##### Query SME System
+```http
+POST /query
+Content-Type: application/json
+
+{
+    "question": "What are the main topics in the documents?",
+    "use_memory": true,
+    "stream": false
+}
 ```
+
+**Response:**
+```json
+{
+    "answer": "Based on the documents, the main topics include...",
+    "sources": [
+        {
+            "index": 1,
+            "score": 0.8756,
+            "file_name": "document1.pdf",
+            "node_type": "Leaf",
+            "content_snippet": "The document discusses...",
+            "node_id": "node_123"
+        }
+    ],
+    "memory_status": "Memory enabled - 1 exchanges"
+}
+```
+
+##### System Status
+```http
+GET /status
+```
+
+**Response:**
+```json
+{
+    "status": "ready",
+    "memory_status": "Memory enabled - 3 exchanges",
+    "elasticsearch_connected": true,
+    "index_exists": true,
+    "docstore_nodes": 8569
+}
+```
+
+##### Memory Management
+```http
+# Toggle memory
+POST /memory/toggle
+
+# Clear memory
+POST /memory/clear
+
+# Check memory status
+GET /memory/status
+```
+
+### JavaScript Integration Example
+
+```javascript
+async function askSME(question) {
+    try {
+        const response = await fetch('http://localhost:8000/query', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                question: question,
+                use_memory: true
+            })
+        });
+        
+        const data = await response.json();
+        
+        console.log('Answer:', data.answer);
+        console.log('Sources:', data.sources);
+        
+        return data;
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+// Usage
+askSME("What are the key concepts in the documents?");
+```
+
+## 🛠️ System Components
+
+### 1. Document Ingestion (`SME_1_build_elasticsearch_database.py`)
+
 **Features:**
-- View database statistics
-- Browse document chunks
-- Analyze retrieval performance
-- Export database contents
+- Hierarchical document chunking (2048, 512, 128 tokens)
+- Vector embeddings with sentence-transformers
+- Elasticsearch vector storage
+- Parent-child relationship preservation
 
-### Knowledge Graph System (GPU-Accelerated)
+**Configuration:**
+```python
+# Chunk sizes for hierarchical parsing
+chunk_sizes=[2048, 512, 128]
+chunk_overlap=20
 
-#### Option 1: Complete Pipeline
-```bash
-python KG_ENHANCED_MASTER_runner_gpu.py
+# Embedding model
+model_name="sentence-transformers/all-mpnet-base-v2"
+
+# Elasticsearch settings
+ES_ENDPOINT = "http://localhost:9200"
+INDEX_NAME = "advanced_docs_elasticsearch_v2"
 ```
-**What it does:**
-- Runs the complete KG pipeline
-- Processes all documents
-- Builds comprehensive knowledge graph
-- Enables interactive querying and visualization
 
-#### Option 2: Step-by-Step Execution
+### 2. Query System (`SME_2_query_elasticsearch_system.py`)
 
-**Step 1: Extract Chapters**
-```bash
-python KG_ENHANCED_1_build_chapter_database_gpu.py
-```
-- Extracts chapters from documents
-- Creates structured chapter database
-- Prepares data for graph construction
+**Features:**
+- AutoMergingRetriever for hierarchical retrieval
+- Conversation memory management
+- Response reranking with BGE-reranker-v2-m3
+- Qwen3:4b LLM for response generation
 
-**Step 2: Build Knowledge Graph**
-```bash
-python KG_ENHANCED_2_build_knowledge_graph_gpu.py
-```
-- Extracts concepts and relationships
-- Builds Neo4j knowledge graph
-- Creates entity connections
+### 3. API Server (`api_server.py`)
 
-**Step 3: Query System**
-```bash
-python KG_ENHANCED_3_query_knowledge_graph_gpu.py
-```
-- Interactive graph querying
-- Multi-modal search (text + graph)
-- Relationship exploration
+**Features:**
+- FastAPI REST endpoints
+- CORS support for web integration
+- Conversation memory API
+- Real-time response streaming
+- Error handling and validation
 
-**Step 4: Visualization**
-```bash
-python KG_ENHANCED_4_visualize_knowledge_graph_gpu.py
-```
-- Interactive graph visualization
-- Network analysis
-- Concept relationship mapping
+### 4. Database Inspector (`SME_3_inspect_elasticsearch_database.py`)
+
+**Features:**
+- Elasticsearch index inspection
+- Docstore integrity checking
+- Hierarchy relationship validation
+- Performance diagnostics
 
 ## ⚙️ Configuration
 
 ### Environment Variables
-Create a `.env` file in the project root:
-```env
-# Elasticsearch
-ES_ENDPOINT=http://localhost:9200
-ES_INDEX_NAME=advanced_docs_elasticsearch_v2
 
-# Neo4j
-NEO4J_URI=bolt://localhost:7687
-NEO4J_USER=neo4j
-NEO4J_PASSWORD=knowledge123
-
-# Ollama
-OLLAMA_BASE_URL=http://localhost:11434
-OLLAMA_MODEL=qwen3:4b-q4_0
-
-# GPU Settings
-CUDA_VISIBLE_DEVICES=0
-OLLAMA_NUM_GPU=1
-OLLAMA_GPU_LAYERS=35
-```
-
-### Model Configuration for Different GPUs
-```python
-# RTX 4090/4080 (16GB+)
-model="qwen3:4b"          # Full precision
-batch_size=32
-
-# RTX 4070/4060 Ti (8-12GB)
-model="qwen3:4b-q8_0"     # 8-bit quantized
-batch_size=16
-
-# RTX 4050/4060 (6-8GB)
-model="qwen3:4b-q4_0"     # 4-bit quantized
-batch_size=8
-```
-
-## 🧪 Testing & Evaluation
-
-### Test Questions
-The system includes pre-defined test questions in `questions.json`:
-```json
-{
-  "questions": [
-    "What is virtual memory and how does it work?",
-    "Explain the concept of process scheduling",
-    "How do deadlocks occur and how can they be prevented?"
-  ]
-}
-```
-
-### Performance Results
-Check `rag_test_results.txt` for system performance metrics:
-- Response time analysis
-- Retrieval accuracy scores
-- Memory usage statistics
-- GPU utilization data
-
-### Custom Testing
 ```bash
-# Run your own test questions
-python SME_2_query_elasticsearch_system.py
-# Then use questions from questions.json or create your own
+# GPU acceleration
+export CUDA_VISIBLE_DEVICES=0
+export OLLAMA_NUM_GPU=1
+export OLLAMA_GPU_LAYERS=35
+
+# API settings
+export SME_API_HOST=0.0.0.0
+export SME_API_PORT=8000
 ```
 
-## 🛠️ Troubleshooting
+### Model Configuration
+
+**LLM Model:** Qwen3:4b via Ollama
+- Download: `ollama pull qwen3:4b`
+- Memory: ~4GB GPU/RAM
+- Features: Thinking tags, multilingual
+
+**Embedding Model:** sentence-transformers/all-mpnet-base-v2
+- Dimensions: 768
+- Language: English optimized
+- Performance: High quality semantic search
+
+**Reranker:** BAAI/bge-reranker-v2-m3
+- Purpose: Result reranking
+- Language: Multilingual support
+
+### Elasticsearch Configuration
+
+```yaml
+# docker-compose-elasticsearch.yml
+version: '3.8'
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+    ports:
+      - "9200:9200"
+```
+
+## 🖥️ Platform-Specific Instructions
+
+### Linux/Ubuntu Server
+```bash
+# Install system dependencies
+sudo apt update
+sudo apt install -y python3-pip docker.io docker-compose curl
+
+# Install Python dependencies
+pip3 install -r requirements.txt -r requirements_api.txt
+
+# Start services
+sudo docker-compose -f docker-compose-elasticsearch.yml up -d
+ollama serve &
+python3 api_server.py
+```
+
+### Windows Server
+```powershell
+# Install Python dependencies
+pip install -r requirements.txt -r requirements_api.txt
+
+# Start Elasticsearch (using Docker Desktop)
+docker-compose -f docker-compose-elasticsearch.yml up -d
+
+# Start Ollama (download from https://ollama.ai/download)
+# ollama serve (runs automatically as service)
+
+# Start API
+python api_server.py
+```
+
+### CentOS/RHEL Server
+```bash
+# Install dependencies
+sudo yum update
+sudo yum install -y python3-pip docker docker-compose curl
+
+# Start Docker
+sudo systemctl start docker
+sudo systemctl enable docker
+
+# Follow Linux instructions above
+```
+
+### macOS
+```bash
+# Install dependencies
+brew install python docker docker-compose
+
+# Install Ollama
+brew install ollama
+
+# Follow Linux instructions above
+```
+
+### Hardware Requirements
+
+**Minimum:**
+- CPU: 4 cores
+- RAM: 8GB
+- Storage: 20GB
+- Network: 1Gbps
+
+**Recommended:**
+- CPU: 8+ cores
+- RAM: 16GB+
+- GPU: NVIDIA with 8GB+ VRAM
+- Storage: SSD with 50GB+
+- Network: 1Gbps+
+
+### Performance Tuning
+
+**For Large Document Sets:**
+```python
+# Increase chunk sizes
+chunk_sizes=[4096, 1024, 256]
+
+# Increase retrieval count
+similarity_top_k=20
+top_n=8  # reranker
+```
+
+**For Better Speed:**
+```python
+# Reduce chunk sizes
+chunk_sizes=[1024, 256, 64]
+
+# Reduce retrieval count
+similarity_top_k=8
+top_n=3
+```
+
+**Elasticsearch Tuning:**
+```yaml
+environment:
+  - "ES_JAVA_OPTS=-Xms4g -Xmx4g"  # Increase heap
+  - bootstrap.memory_lock=true
+```
+
+## 🚨 Troubleshooting
 
 ### Common Issues
 
-**1. Elasticsearch Connection Failed**
+#### 1. Elasticsearch Connection Failed
 ```bash
-# Check if Elasticsearch is running
-curl -X GET "localhost:9200/_cluster/health"
+# Check if container is running
+docker ps
 
 # Restart Elasticsearch
 docker-compose -f docker-compose-elasticsearch.yml restart
+
+# Check logs
+docker logs elasticsearch-rag
 ```
 
-**2. Ollama Model Not Found**
+#### 2. Ollama Model Not Found
 ```bash
-# List available models
+# Download model
+ollama pull qwen3:4b
+
+# Verify download
 ollama list
 
-# Pull required model
-ollama pull qwen3:4b-q4_0
+# Check Ollama service
+curl http://localhost:11434/api/tags
 ```
 
-**3. GPU Memory Issues**
+#### 3. Out of Memory Errors
 ```bash
-# Check GPU memory usage
-nvidia-smi
+# Reduce batch sizes in build script
+batch_size = 50  # instead of 100
 
-# Use quantized model
-export OLLAMA_MODEL="qwen3:4b-q4_0"
+# Use CPU instead of GPU
+device = "cpu"
+
+# Reduce Elasticsearch heap
+ES_JAVA_OPTS=-Xms512m -Xmx512m
 ```
 
-**4. Neo4j Connection Issues**
+#### 4. API Returns 503 Errors
 ```bash
-# Check Neo4j status
-docker-compose -f docker-compose-neo4j.yml logs
+# Check if database was built
+ls elasticsearch_storage_v2/
 
-# Reset Neo4j password
-docker exec -it neo4j cypher-shell -u neo4j -p neo4j
-# Then: ALTER USER neo4j SET PASSWORD 'knowledge123'
+# Rebuild database
+python SME_1_build_elasticsearch_database.py
+
+# Check API logs
+python api_server.py  # Look for error messages
 ```
 
-### Performance Optimization
-
-**For RTX 4050 6GB Users:**
-```python
-# Use these settings in your configuration:
-model="qwen3:4b-q4_0"     # 4-bit quantized (2.8GB VRAM)
-batch_size=8              # Smaller batch size
-max_context_length=2000   # Reduced context for memory
-```
-
-**Memory Management:**
-```python
-import torch
-# Clear GPU cache between operations
-torch.cuda.empty_cache()
-```
-
-## 📊 System Capabilities
-
-### SME System Features
-- **Document Types**: PDF, TXT, DOCX, MD
-- **Max Document Size**: 500MB per file
-- **Concurrent Users**: Single user (local deployment)
-- **Response Time**: 2-5 seconds average
-- **Memory Context**: Up to 4,000 characters with auto-summarization
-
-### Knowledge Graph Features
-- **Node Types**: Concepts, Entities, Chapters, Documents
-- **Relationship Types**: 15+ semantic relationship types
-- **Graph Size**: Handles 10,000+ nodes efficiently
-- **Query Types**: Cypher, natural language, hybrid
-- **Visualization**: Interactive web-based interface
-
-## 🚀 Advanced Usage
-
-### Batch Processing
+#### 5. Slow Query Performance
 ```bash
-# Process multiple document sets
-for folder in data_batch_*/; do
-    cp -r "$folder"/* data_large/
-    python SME_1_build_elasticsearch_database.py
-    python KG_ENHANCED_MASTER_runner_gpu.py
-done
+# Check document count
+python SME_3_inspect_elasticsearch_database.py
+
+# Optimize chunk sizes
+# Reduce similarity_top_k in retriever
+# Use GPU acceleration
 ```
 
-### Custom Model Integration
-```python
-# Replace Qwen with custom model
-Settings.llm = Ollama(
-    model="your-custom-model:latest",
-    request_timeout=300.0,
-    base_url="http://localhost:11434",
-)
+### Debug Commands
+
+```bash
+# Check all services
+curl http://localhost:9200  # Elasticsearch
+curl http://localhost:11434/api/tags  # Ollama
+curl http://localhost:8000/status  # SME API
+
+# Test components individually
+python SME_3_inspect_elasticsearch_database.py
+python test_api.py
+
+# Check system resources
+nvidia-smi  # GPU usage
+htop  # CPU/RAM usage
+df -h  # Disk usage
 ```
 
-### API Integration
-```python
-# Basic API wrapper (extend as needed)
-from SME_2_query_elasticsearch_system import query_engine
+## 🔒 Security Considerations
 
-def api_query(question: str) -> str:
-    response = query_engine.query(question)
-    return response.response
+### Production Deployment (No Scripts Required)
+
+#### 1. Automated Service Setup (Linux)
+```bash
+# Create systemd service for SME API
+sudo tee /etc/systemd/system/sme-api.service > /dev/null <<EOF
+[Unit]
+Description=SME API Server
+After=network.target docker.service
+
+[Service]
+Type=simple
+User=smeuser
+WorkingDirectory=/opt/sme-system
+Environment=PATH=/opt/sme-system/venv/bin
+ExecStart=/opt/sme-system/venv/bin/python api_server.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Enable and start
+sudo systemctl daemon-reload
+sudo systemctl enable sme-api
+sudo systemctl start sme-api
 ```
 
-## 📈 Performance Benchmarks
+#### 2. Manual Production Startup
+```bash
+# Navigate to project directory
+cd /path/to/sme-system
 
-### SME System Performance
-- **Retrieval Speed**: ~200ms for similarity search
-- **Response Generation**: ~2-4 seconds
-- **Memory Usage**: 4-8GB RAM + 3-6GB VRAM
-- **Accuracy**: 85-92% on domain-specific questions
+# Activate virtual environment
+source venv/bin/activate  # Linux/Mac
+# venv\Scripts\activate  # Windows
 
-### Knowledge Graph Performance
-- **Graph Construction**: ~5-10 minutes for 1000 pages
-- **Query Response**: ~500ms for complex queries
-- **Visualization Load**: ~2-3 seconds for 1000 nodes
-- **Memory Usage**: 6-12GB RAM + 4-8GB VRAM
+# Start all services in order
+docker-compose -f docker-compose-elasticsearch.yml up -d
+ollama serve &
+python api_server.py
+
+# Keep running with screen/tmux (optional)
+screen -S sme-api python api_server.py
+# Detach with Ctrl+A, D
+```
+
+#### 3. Windows Service Setup
+```powershell
+# Create Windows service using NSSM (Non-Sucking Service Manager)
+# Download NSSM from https://nssm.cc/download
+
+# Install API as service
+nssm install SME-API "C:\Python39\python.exe"
+nssm set SME-API Parameters "C:\path\to\sme-system\api_server.py"
+nssm set SME-API AppDirectory "C:\path\to\sme-system"
+
+# Start service
+nssm start SME-API
+```
+
+### Data Privacy
+
+- Documents are stored locally in Elasticsearch
+- No data sent to external services (except Ollama locally)
+- Conversation memory can be disabled
+- Clear memory option available
+
+## 📈 Monitoring & Logging
+
+### Health Checks
+
+```bash
+# Automated health check script
+#!/bin/bash
+curl -f http://localhost:8000/status || exit 1
+curl -f http://localhost:9200/_cluster/health || exit 1
+curl -f http://localhost:11434/api/tags || exit 1
+```
+
+### Log Locations
+
+```bash
+# API logs (when run as service)
+journalctl -u sme-api -f
+
+# Elasticsearch logs
+docker logs elasticsearch-rag -f
+
+# Ollama logs
+journalctl -u ollama -f
+```
+
+### Metrics to Monitor
+
+- Query response time
+- Memory usage
+- Elasticsearch cluster health
+- API request rate
+- Error rates
+
+## 🔄 Updates & Maintenance
+
+### Updating Documents
+
+```bash
+# Add new documents to data_large/
+cp new_documents/* data_large/
+
+# Rebuild database
+python SME_1_build_elasticsearch_database.py
+```
+
+### Model Updates
+
+```bash
+# Update Ollama model
+ollama pull qwen3:4b  # Gets latest version
+
+# Update embedding model (automatic via HuggingFace)
+# No manual update needed
+```
+
+### Backup & Recovery
+
+```bash
+# Backup Elasticsearch data
+docker exec elasticsearch-rag tar czf /backup/es-data.tar.gz /usr/share/elasticsearch/data
+
+# Backup docstore
+tar czf sme-backup.tar.gz elasticsearch_storage_v2/
+
+# Restore
+tar xzf sme-backup.tar.gz
+docker-compose restart
+```
 
 ## 🤝 Contributing
 
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
-4. **Push** to the branch (`git push origin feature/amazing-feature`)
-5. **Open** a Pull Request
+### Development Setup
 
-## 📝 License
+```bash
+# Clone repository
+git clone <repo-url>
+cd sme-system
 
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# venv\Scripts\activate  # Windows
 
-## 🙏 Acknowledgments
+# Install dependencies
+pip install -r requirements.txt -r requirements_api.txt
+```
 
-- **[LangChain](https://langchain.com/)** for RAG framework
-- **[LlamaIndex](https://llamaindex.ai/)** for advanced indexing
-- **[Ollama](https://ollama.ai/)** for local LLM deployment
-- **[Neo4j](https://neo4j.com/)** for graph database technology
-- **[Elasticsearch](https://elastic.co/)** for search capabilities
+### Code Structure
+
+- **Core Logic:** SME_2_query_elasticsearch_system.py
+- **API Layer:** api_server.py
+- **Data Pipeline:** SME_1_build_elasticsearch_database.py
+- **Utilities:** SME_3_inspect_elasticsearch_database.py
+
+### Testing
+
+```bash
+# Run API tests
+python test_api.py
+
+# Manual testing
+python SME_2_query_elasticsearch_system.py
+
+# Integration testing
+# Visit http://localhost:8000/docs
+```
 
 ## 📞 Support
 
-- **Issues**: [GitHub Issues](https://github.com/iDheer/subject-matter-expert-rag/issues)
-- **Documentation**: This README + `SME_SETUP_MANUAL.md`
-- **Performance**: Check `rag_test_results.txt` for benchmarks
+### Getting Help
+
+1. **Check this README** for common issues
+2. **Run diagnostic tools:**
+   ```bash
+   python SME_3_inspect_elasticsearch_database.py
+   python test_api.py
+   ```
+3. **Check logs** for error messages
+4. **Verify all services** are running
+
+### System Requirements Verification
+
+```bash
+# Check Python version
+python --version  # Should be 3.9+
+
+# Check Docker
+docker --version
+docker-compose --version
+
+# Check CUDA (if using GPU)
+nvidia-smi
+
+# Check disk space
+df -h
+```
+
+## 📄 License
+
+[Add your license information here]
+
+## 🙏 Acknowledgments
+
+- **LlamaIndex** - RAG framework
+- **Elasticsearch** - Vector search engine
+- **Ollama** - Local LLM serving
+- **FastAPI** - API framework
+- **HuggingFace** - Embedding models
 
 ---
 
-<div align="center">
+**Happy querying! 🚀**
 
-**Ready to enhance your document analysis with AI?** 🚀
-
-Start with: `python SME_1_build_elasticsearch_database.py`
-
-</div>
+For questions or issues, please check the troubleshooting section or create an issue in the repository.
