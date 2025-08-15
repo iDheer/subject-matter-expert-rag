@@ -14,8 +14,8 @@ llama-index-postprocessor-flag-embedding-reranker>=0.2.0
 # ============================================================================
 # DATABASE & STORAGE
 # ============================================================================
-elasticsearch==8.11.1
-elasticsearch-dsl==8.11.0
+elasticsearch>=8.13.1,<9.0.0
+elasticsearch-dsl>=8.11.0,<9.0.0
 neo4j==5.14.1
 
 # ============================================================================
@@ -60,32 +60,7 @@ networkx>=3.2.1
 # ============================================================================
 tqdm>=4.66.1
 python-dotenv>=1.0.0
-pydantic>=2.5.0
+pydantic>=2.8.0
 fastapi>=0.104.1
 uvicorn[standard]>=0.24.0
-pydantic>=2.8.0
 python-multipart>=0.0.6
-# ============================================================================
-# INSTALLATION NOTES
-# ============================================================================
-# 1. For GPU support, install PyTorch with CUDA:
-#    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
-# 
-# 2. Download spaCy model after installation:
-#    python -m spacy download en_core_web_sm
-#
-# 3. For full features including advanced GPU acceleration, use:
-#    pip install -r enhanced_requirements.txt
-#
-# 4. Minimum System Requirements:
-#    - Python 3.11+
-#    - 8GB RAM (16GB recommended)
-#    - 5GB disk space
-#    - Optional: NVIDIA GPU with 6GB+ VRAM
-
-# ============================================================================
-# QUICK START
-# ============================================================================
-# pip install -r requirements.txt
-# python -m spacy download en_core_web_sm
-# python SME_1_build_elasticsearch_database.py

@@ -161,7 +161,7 @@ Please provide a response that takes into account our previous discussion. If th
         return status
 
 # --- Configuration ---
-ES_ENDPOINT = "http://localhost:9200"
+ES_ENDPOINT = os.getenv("ES_ENDPOINT", "http://localhost:9200")
 INDEX_NAME = "advanced_docs_elasticsearch_v2"
 ES_STORAGE_DIR = "./elasticsearch_storage_v2"
 
@@ -211,11 +211,13 @@ async def lifespan(app: FastAPI):
             os.environ['CUDA_VISIBLE_DEVICES'] = '0'
             os.environ['OLLAMA_NUM_GPU'] = '1'
             os.environ['OLLAMA_GPU_LAYERS'] = '35'
+        
+        ollama_base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
             
         Settings.llm = Ollama(
             model="qwen3:4b",
             request_timeout=300.0,
-            base_url="http://localhost:11434",
+            base_url=ollama_base_url
         )
         
         Settings.embed_model = HuggingFaceEmbedding(

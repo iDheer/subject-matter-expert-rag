@@ -101,32 +101,43 @@ python SME_1_build_elasticsearch_database.py
 
 ### Step 6: Start API Server
 
-#### Option A: Using the startup script (Linux/Mac/WSL)
+#### Option A: Native Python (Simple)
 ```bash
-# Make script executable
-chmod +x start_api.sh
+# Direct Python execution
+python api_server.py
 
-# Run startup script
-./start_api.sh
+# Wait for: "🎉 SME API Server ready!"
 ```
 
-#### Option B: Manual startup (Windows/All platforms)
+#### Option B: Docker Container (Recommended for Production)
+```bash
+# Start API in Docker container
+docker-compose -f docker-compose-api.yml up -d --build
+
+# Check logs
+docker logs sme-api -f
+
+# Wait for: "🎉 SME API Server ready!"
+```
+
+#### Manual Startup (Any Platform)
 ```bash
 # 1. Check prerequisites
 curl http://localhost:9200  # Elasticsearch
 curl http://localhost:11434/api/tags  # Ollama
 
-# 2. Install API dependencies
+# 2. Install API dependencies (if not using Docker)
 pip install fastapi uvicorn[standard] pydantic python-multipart
 
 # 3. Verify database exists
 ls elasticsearch_storage_v2/  # Linux/Mac
 dir elasticsearch_storage_v2\  # Windows
 
-# 4. Start the API server
+# 4A. Start with Python
 python api_server.py
 
-# Wait for: "🎉 SME API Server ready!"
+# 4B. Or start with Docker
+docker-compose -f docker-compose-api.yml up -d --build
 ```
 
 #### Troubleshooting Startup
